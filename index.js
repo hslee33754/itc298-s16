@@ -1,35 +1,25 @@
-var http = require("http"), fs = require("fs");
+var express = require('express');
 
-function serveStatic(res, path, contetnType, responseCode){
-    if(!responseCode) responseCode = 200;
-    fs.readFile(__dirname + path, function(err,data){
-        if(err) {
-            res.writeHead(500, {'Content-Type' : 'text/plain'});
-            res.end('500-Internal Error');
-        }else{
-            res.writeHead(responseCode, {'Content-Type' : contetnType});
-            res.end(data);
-        }
-    })
-}
+var app = express();
 
-http.createServer(function(req,res){
-    var path = req.url.toLocaleLowerCase();
-    
-    switch (path) {
-        case '/':
-            //res.writeHead(200, {'Content-Type': 'text/plain'});
-            //res.end('Home page');
-            serveStatic(res,'/public/home.html', 'text/html');
-            break;
-        case '/about':
-            res.writeHead(200, {'Content-Type' : 'text/plain' });
-            res.end('About page');
-            break;
-        default:
-            res.writeHead(404, {'Content-Type' : 'text/plain'});
-            res.end('Not Found');
-            break;
-    }
-    
-}).listen(process.env.PORT);
+app.set('port', process.env.PORT || 3000);
+
+
+//custom 404 page
+app.use(function(req, res){
+   res.type('text/plain');
+   res.status('404');
+   res.send('404 - Not Found');
+});
+
+//custom 500 page
+app.use(function(err, req, res, next){
+   console.error(err.stack);
+   res.type('text/plain');
+   res.status(500);
+   res.send('500 - Server Error');
+});
+
+app.listen(app.get('port'), function(){
+    console.log('Express started on http://localhost:' + app.get('port') + '; Press Ctrl-C to terminate.');
+});
