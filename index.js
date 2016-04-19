@@ -44,7 +44,7 @@ app.post('/search', function(req, res){
         message = count + " item(s) results for '" + userKeyword + "'";
     }
 
-    res.render('search', {keyword:userKeyword, results, books, message});
+    res.render('search', {results, message});
 });
 
 app.get('/', function(req, res){
