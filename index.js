@@ -7,17 +7,53 @@ var handlebars = require('express-handlebars').create({defaultLayout:'main'});
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
-app.set('port', process.env.PORT || 3000);
+//body-Parser Configuration
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
+app.use(bodyParser.json()); // support json encoded bodies
 
 //static files and views handler (middleware)
 app.use(express.static(__dirname + '/public'));
+
+app.set('port', process.env.PORT || 3000); //app.listen(3000);?
+
+app.post('/search', function(req, res){
+    //sets new variable each time post accurs
+    var message = '';
+    var userKeyword = req.body.search.toLowerCase();
+    var results = [];
+    var count = 0;
+    
+    for ( var i = 0; i < books.length; i++ ) {
+        var pos = books[i].title.toLowerCase().search(userKeyword);
+        
+        if (pos == -1) {
+            //do nothing, count is still 0.
+            //results = books; //show all lists if you want
+        } else {
+            count += 1; 
+            //console.log(books[i].title);
+            //push the object to new result array
+            results.push( books[i] );
+        }
+    }
+    
+    if (count == 0){
+        message = "There's no matched item for " + userKeyword + "."
+    }else{
+        message = count + " item(s) results for '" + userKeyword + "'";
+    }
+
+    res.render('search', {keyword:userKeyword, results, books, message});
+});
 
 app.get('/', function(req, res){
     res.render('home');
 });
 
 app.get('/about', function(req, res){
-    res.render('about');
+    var randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+    res.render('about', {fortune:randomFortune});
 });
 
 //404 catch-all handler (middleware)
@@ -36,3 +72,20 @@ app.use(function(err, req, res, next){
 app.listen(app.get('port'), function(){
     console.log('Express started on http://localhost:' + app.get('port') + '; Press Ctrl-C to terminate.');
 });
+
+//for about page test
+var fortunes = [
+    "Conquer your fears or they will conquer you.",
+    "Rivers need springs.",
+    "Do not fear what you don't know.",
+    "You will have a pleasant surprise.",
+    "Whenever possible, keep it simple.",
+];
+
+var books = [
+    {id: 0, title:'Fifty Shades of Grey', author:'E L James', price:'$9.56'},
+    {id: 1, title:'The Hunger Games', author:'Suzanne Collins', price:'$6.70'},
+    {id: 2, title:'Catching Fire', author:'Suzanne Collins', price:'$7.92'},
+    {id: 3, title:'Mockingjay', author:'Suzanne Collins', price:'$7.48'},
+    {id: 4, title:'Fifty Shades Darker', author:'E L James', price:'$11.48'}
+];
