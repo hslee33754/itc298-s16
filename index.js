@@ -21,27 +21,24 @@ app.post('/search', function(req, res){
     //sets new variable each time post accurs
     var message = '';
     var userKeyword = req.body.search.toLowerCase();
-    var results = [];
-    var count = 0;
+    var results = []
+    var i;
     
-    for ( var i = 0; i < books.length; i++ ) {
-        var pos = books[i].title.toLowerCase().search(userKeyword);
+    for ( i = 0; i < books.length; i++ ) {
+        var position = books[i].title.toLowerCase().search(userKeyword);
         
-        if (pos == -1) {
-            //do nothing, count is still 0.
-            //results = books; //show all lists if you want
+        if (position == -1) {
+            //do nothing
         } else {
-            count += 1; 
-            //console.log(books[i].title);
             //push the object to new result array
             results.push( books[i] );
         }
     }
     
-    if (count == 0){
-        message = "There's no matched item for " + userKeyword + "."
+    if (results.length == 0){
+        message = "There's no matched item for " + userKeyword + ".";
     }else{
-        message = count + " item(s) results for '" + userKeyword + "'";
+        message = results.length + " item(s) results for '" + userKeyword + "'";
     }
 
     res.render('search', {results, message});
