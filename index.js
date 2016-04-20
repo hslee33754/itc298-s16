@@ -18,28 +18,15 @@ app.use(express.static(__dirname + '/public'));
 app.set('port', process.env.PORT || 3000); //app.listen(3000);?
 
 app.post('/search', function(req, res){
-    //sets new variable each time post accurs
     var message = '';
     var userKeyword = req.body.search.toLowerCase();
-    var results = []
-    var i;
     
-    for ( i = 0; i < books.length; i++ ) {
-        var position = books[i].title.toLowerCase().search(userKeyword);
-        
-        if (position == -1) {
-            //do nothing
-        } else {
-            //push the object to new result array
-            results.push( books[i] );
-        }
+    function searchByTitle(obj){
+        var title = obj.title.toLowerCase();
+        return title.includes(userKeyword);
     }
     
-    if (results.length == 0){
-        message = "There's no matched item for " + userKeyword + ".";
-    }else{
-        message = results.length + " item(s) results for '" + userKeyword + "'";
-    }
+    var results = books.filter(searchByTitle);
 
     res.render('search', {results, message});
 });
