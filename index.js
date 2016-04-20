@@ -21,7 +21,16 @@ app.post('/search', function(req, res){
     //sets new variable each time post accurs
     var message = '';
     var userKeyword = req.body.search.toLowerCase();
-    var results = []
+    
+    function searchByTitle(obj){
+        var title = obj.title.toLowerCase();
+        return title.includes(userKeyword);
+    }
+    
+    var results = books.filter(searchByTitle);
+    
+    console.log(results);
+    /*var results = [];
     var i;
     
     for ( i = 0; i < books.length; i++ ) {
@@ -39,7 +48,7 @@ app.post('/search', function(req, res){
         message = "There's no matched item for " + userKeyword + ".";
     }else{
         message = results.length + " item(s) results for '" + userKeyword + "'";
-    }
+    }*/
 
     res.render('search', {results, message});
 });
