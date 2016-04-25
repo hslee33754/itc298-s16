@@ -1,3 +1,5 @@
+var book = require('./lib/books.js'); 
+var fortune = require('./lib/fortune.js'); 
 var express = require('express');
 
 var app = express();
@@ -18,23 +20,20 @@ app.use(express.static(__dirname + '/public'));
 app.set('port', process.env.PORT || 3000); //app.listen(3000);?
 
 app.post('/search', function(req, res){
-    var message = '';
+    
     var userKeyword = req.body.search.toLowerCase();
-
-    function searchByTitle(obj){
-        var title = obj.title.toLowerCase();
-        return title.includes(userKeyword);
-    }
+    var searchResults = book.getSearchResults(userKeyword);
+    var count = book.getResultCounts();
     
-    var results = books.filter(searchByTitle);
-    
-    if (results.length == 0){
-        message = "There's no matched item for " + userKeyword + ".";
-    }else{
-        message = results.length + " item(s) results for '" + userKeyword + "'";
-    }
+    var getMessage = function(count, userKeyword){
+        if (count == 0){
+            return "There's no matched item for '" + userKeyword + "'.";
+        }else{
+            return count + " item(s) results for '" + userKeyword + "'";
+        }
+    };
 
-    res.render('search', {results, message});
+    res.render('search', { results:searchResults, message:getMessage(count, userKeyword)});
 });
 
 app.get('/', function(req, res){
@@ -42,8 +41,7 @@ app.get('/', function(req, res){
 });
 
 app.get('/about', function(req, res){
-    var randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
-    res.render('about', {fortune:randomFortune});
+    res.render('about', {fortune: fortune.randomFortune()});
 });
 
 //404 catch-all handler (middleware)
@@ -62,20 +60,3 @@ app.use(function(err, req, res, next){
 app.listen(app.get('port'), function(){
     console.log('Express started on http://localhost:' + app.get('port') + '; Press Ctrl-C to terminate.');
 });
-
-//for about page test
-var fortunes = [
-    "Conquer your fears or they will conquer you.",
-    "Rivers need springs.",
-    "Do not fear what you don't know.",
-    "You will have a pleasant surprise.",
-    "Whenever possible, keep it simple.",
-];
-
-var books = [
-    {id: 0, title:'Fifty Shades of Grey', author:'E L James', price:'$9.56'},
-    {id: 1, title:'The Hunger Games', author:'Suzanne Collins', price:'$6.70'},
-    {id: 2, title:'Catching Fire', author:'Suzanne Collins', price:'$7.92'},
-    {id: 3, title:'Mockingjay', author:'Suzanne Collins', price:'$7.48'},
-    {id: 4, title:'Fifty Shades Darker', author:'E L James', price:'$11.48'}
-];
