@@ -37,7 +37,29 @@ app.post('/search', function(req, res){
 });
 
 app.get('/', function(req, res){
-    res.render('home');
+    res.render('home', {books:book.getAllBooks});
+});
+
+app.post('/', function(req, res){
+    var id = book.genNextId();
+    var title = req.body.inputTitle;
+    var author = req.body.inputAuthor;
+    var price = req.body.inputPrice;
+    var date = new Date();
+    var sold = false;
+    var theBook = {id, title, author, price, date, sold};
+    var message = '';
+    
+    //if title is matched
+        //Do not add the book and show message
+    //if title is not matched add the book
+
+    message = '\'' + title + '\' is added. We have ' + book.addABook(theBook) + ' total books.'; //add a book while writing a message.
+    res.render('home', {books:book.getAllBooks(), message:message}); //get the new book list after adding the book while writing the message
+});
+
+app.get('/add', function(req, res){
+    res.render('add');
 });
 
 app.get('/about', function(req, res){
