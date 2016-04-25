@@ -1,4 +1,4 @@
-var book = require('./lib/books.js'); 
+var book = require('./lib/book.js'); 
 var fortune = require('./lib/fortune.js'); 
 var express = require('express');
 
