@@ -29,6 +29,11 @@ app.get('/add', function(req, res){
     res.render('add');
 });
 
+app.get('/update', function(req, res){
+    //showing update form 
+    res.render('update');
+});
+
 app.get('/about', function(req, res){
     res.render('about', {fortune: fortune.randomFortune()});
 });
@@ -57,6 +62,19 @@ app.post('/delete', function(req, res){
     var myInput = req.body.title.toLowerCase();
     book.deleteABook(myInput);
     res.redirect(302, '/');
+});
+
+app.post('/update', function(req, res){
+    //handleing delete and redirct to home
+    var myInput = req.body.title.toLowerCase();
+    var item = book.getMatchedItem(myInput);
+    var message = '';
+    if(item){
+        res.render('update', {item:item});
+    }else{
+        message = "Can't update the item. '" + myInput + "' is not in your List.";
+        res.render('home', {books:book.getAllBooks, message: message});
+    }
 });
 
 //404 catch-all handler (middleware)
