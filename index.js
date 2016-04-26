@@ -19,51 +19,44 @@ app.use(express.static(__dirname + '/public'));
 
 app.set('port', process.env.PORT || 3000); //app.listen(3000);?
 
-app.post('/search', function(req, res){
-    
-    var userKeyword = req.body.search.toLowerCase();
-    var searchResults = book.getSearchResults(userKeyword);
-    var count = book.getResultCounts();
-    
-    var getMessage = function(count, userKeyword){
-        if (count == 0){
-            return "There's no matched item for '" + userKeyword + "'.";
-        }else{
-            return count + " item(s) results for '" + userKeyword + "'";
-        }
-    };
-
-    res.render('search', { results:searchResults, message:getMessage(count, userKeyword)});
-});
-
+//GET
 app.get('/', function(req, res){
-    res.render('home', {books:book.getAllBooks});
-});
-
-app.post('/', function(req, res){
-    var id = book.genNextId();
-    var title = req.body.inputTitle;
-    var author = req.body.inputAuthor;
-    var price = req.body.inputPrice;
-    var date = new Date();
-    var sold = false;
-    var theBook = {id, title, author, price, date, sold};
-    var message = '';
-    
-    //if title is matched
-        //Do not add the book and show message
-    //if title is not matched add the book
-
-    message = '\'' + title + '\' is added. We have ' + book.addABook(theBook) + ' total books.'; //add a book while writing a message.
-    res.render('home', {books:book.getAllBooks(), message:message}); //get the new book list after adding the book while writing the message
+    res.render('home', {books:book.getAllBooks, message: book.getMessage});
 });
 
 app.get('/add', function(req, res){
+    //showing add form 
     res.render('add');
 });
 
 app.get('/about', function(req, res){
     res.render('about', {fortune: fortune.randomFortune()});
+});
+
+//POST
+app.post('/search', function(req, res){
+    var userKeyword = req.body.search.toLowerCase();
+    res.render('search', { results:book.getSearchResults(userKeyword), message:book.getMessage});
+});
+
+app.post('/add', function(req, res){
+    //handleing form from add and redirct to home
+    var id = book.genNextId();
+    var title = req.body.inputTitle; //Keep the case as user entered.
+    var author = req.body.inputAuthor;
+    var price = req.body.inputPrice;
+    var date = new Date();
+    var sold = false;
+    var theBook = {id, title, author, price, date, sold};
+    book.addABook(theBook, title.toLowerCase()); //lower the case of title to compare
+    res.redirect(302, '/');
+});
+
+app.post('/delete', function(req, res){
+    //handleing delete and redirct to home
+    var myInput = req.body.title.toLowerCase();
+    book.deleteABook(myInput);
+    res.redirect(302, '/');
 });
 
 //404 catch-all handler (middleware)
