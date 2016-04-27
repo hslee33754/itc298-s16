@@ -5,7 +5,7 @@ var express = require('express');
 var app = express();
 
 //set up handlebars view engine
-var handlebars = require('express-handlebars').create({defaultLayout:'main'});
+var handlebars = require('express-handlebars').create({defaultLayout:'main'});    
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
@@ -67,14 +67,24 @@ app.post('/delete', function(req, res){
 app.post('/update', function(req, res){
     //handleing delete and redirct to home
     var myInput = req.body.title.toLowerCase();
-    var item = book.getMatchedItem(myInput);
+    var item = book.getMatchedItem(myInput).obj;
     var message = '';
     if(item){
         res.render('update', {item:item});
-    }else{
+    }else{  
         message = "Can't update the item. '" + myInput + "' is not in your List.";
         res.render('home', {books:book.getAllBooks, message: message});
     }
+});
+
+app.post('/updateProcess', function(req, res){
+    var title = req.body.inputTitle;
+    var author = req.body.inputAuthor;
+    var price = req.body.inputPrice;
+    console.log(title, author, price);
+
+   book.update(title, author, price);
+   res.redirect(302, '/');
 });
 
 //404 catch-all handler (middleware)
