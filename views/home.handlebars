@@ -1,57 +1,57 @@
-<h1>Welcome to Kate's first Express Home</h1>
+<div class="page-header">
+  <h1>Kate's itc298 project</h1>
+</div>
 
 <div class="row">
-  <div class="col-xs-12">
-    <form class="form-inline" method="POST" action="/search">
+  <p>
+    <form class="form-inline" method="POST" id="main-form">
       <div class="form-group">
         <label class="sr-only" for="search" >Search</label>
-        <input type="text" class="form-control" name="search" required="true" placeholder="Search Book Title">
+        <input type="text" class="form-control" name="userInput" required="true" placeholder="Enter Book Title">
       </div>
-      <button type="submit" class="btn btn-default">Search</button>
+      <button type="submit" class="btn btn-default" id="btn-search">Search</button>
+      <button type="submit" class="btn btn-default" id="btn-delete">Delete</button>
+      <button type="submit" class="btn btn-default" id="btn-update">Update</button>
       <a href="/add" class="btn btn-success pull-right">Add a book</a>
     </form>
-  </div>
+  </p>
 </div>
 
-<hr></hr>
-
 <div class="row">
-  <div class="col-xs-6">
-    <form class="form-inline" method="POST" action="/delete">
-      <div class="form-group">
-        <label class="sr-only" for="title" >Delete</label>
-        <input type="text" class="form-control" name="title" required="true" placeholder="Enter Book Title">
-      </div>
-      <button type="submit" class="btn btn-default">Delete</button>
-    </form>
-  </div>
-
-  <div class="col-xs-6">
-    <form class="form-inline" method="POST" action="/update">
-      <div class="form-group">
-        <label class="sr-only" for="title" >Delete or Udate</label>
-        <input type="text" class="form-control" name="title" required="true" placeholder="Enter Book Title">
-      </div>
-      <button type="submit" class="btn btn-default">Update</button>
-    </form>
-  </div>
-</div>
-
-<hr></hr>
-
-<div class="row">
-  <div class="col-xs-12">
-    <h3>{{message}}</h3>
-    {{#each books}}
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{{title}}</h3>
-      </div>
-      <div class="panel-body">
-        <p>Author: <span>{{author}}</span></p>
-        <p>Price: <span>{{price}}</span></p>
-      </div>
+  <h4>{{message}}</h4>
+  {{#each book}}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">{{title}}</h3>
     </div>
-    {{/each}}
+    <div class="panel-body">
+      <p>Author: <span>{{author}}</span></p>
+      <p>Price: <span>{{price}}</span></p>
+    </div>
   </div>
+  {{/each}}
+  
+  {{#if btn_total}}
+  <a href="/" id="btn_total">See total books</a>
+  {{/if}}
 </div>
+
+
+
+<script>
+  $( document ).ready(function() {
+  
+  $("#btn-search").click(function(){
+     $("#main-form").attr("action", "/search");
+  });
+   
+  $("#btn-delete").click(function(){
+     $("#main-form").attr("action", "/delete");
+  });
+   
+  $("#btn-update").click(function(){
+     $("#main-form").attr("action", "/update");
+  });
+  
+  });
+</script>
