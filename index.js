@@ -33,6 +33,20 @@ app.get('/add', function(req, res){
     res.render('add');
 });
 
+//get-about
+app.get('/about', function(req, res){
+    //showing add form 
+    res.render('about');
+});
+
+//get-detail
+
+app.get('/detail/:theTitle', function(req, res){
+    var myTitle = req.params.theTitle.toLowerCase();
+    var myItem = book.getMatchedItem(myTitle);
+    res.render('detail', {myItem, btn_total:"show"});
+});
+
 /* ======================= POST ======================= */ 
 //post-search
 app.post('/search', function(req, res){

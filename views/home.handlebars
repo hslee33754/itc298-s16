@@ -2,27 +2,15 @@
   <h1>Kate's itc298 project</h1>
 </div>
 
-<div class="row">
-  <p>
-    <form class="form-inline" method="POST" id="main-form">
-      <div class="form-group">
-        <label class="sr-only" for="search" >Search</label>
-        <input type="text" class="form-control" name="userInput" required="true" placeholder="Enter Book Title">
-      </div>
-      <button type="submit" class="btn btn-default" id="btn-search">Search</button>
-      <button type="submit" class="btn btn-default" id="btn-delete">Delete</button>
-      <button type="submit" class="btn btn-default" id="btn-update">Update</button>
-      <a href="/add" class="btn btn-success pull-right">Add a book</a>
-    </form>
-  </p>
-</div>
+{{> control}}
+
 
 <div class="row">
   <h4>{{message}}</h4>
   {{#each book}}
   <div class="panel panel-default">
     <div class="panel-heading">
-      <h3 class="panel-title">{{title}}</h3>
+      <h3 class="panel-title"><a id="title" name="title" href="/detail/{{title}}">{{title}}</a></h3>
     </div>
     <div class="panel-body">
       <p>Author: <span>{{author}}</span></p>
@@ -36,22 +24,25 @@
   {{/if}}
 </div>
 
-
-
 <script>
+    
+  //script for button and action
   $( document ).ready(function() {
+    var buttons = $('button');
+    buttons.on("click", function(){
+      var $this = $(this);
+      $('form').attr("action", $this.text().toLowerCase());
+      
+    });
+  });  
   
-  $("#btn-search").click(function(){
-     $("#main-form").attr("action", "/search");
-  });
-   
-  $("#btn-delete").click(function(){
-     $("#main-form").attr("action", "/delete");
-  });
-   
-  $("#btn-update").click(function(){
-     $("#main-form").attr("action", "/update");
+  //script for getting user select item
+  $( document ).ready(function() {
+      var title = $('#title');
+      var myItem;
+      title.on("click", function(){
+        myItem = book.getMatchedItem(title.toLowerCase());
+      });
   });
   
-  });
 </script>
