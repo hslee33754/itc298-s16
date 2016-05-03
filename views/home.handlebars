@@ -1,7 +1,8 @@
 <div class="page-header">
-  <h1>Kate's itc298 project</h1>
+  <h1>Kate's Book List</h1>
 </div>
 
+{{! partial for main user control}}
 {{> control}}
 
 
@@ -10,7 +11,7 @@
   {{#each book}}
   <div class="panel panel-default">
     <div class="panel-heading">
-      <h3 class="panel-title"><a id="title" name="title" href="/detail/{{title}}">{{title}}</a></h3>
+      <h3 class="panel-title"><a id="title" name="title" href="/detail/{{title}}">{{title}}</a> <span class="badge pull-right">{{#if sold}}sold{{/if}}</span></h3>
     </div>
     <div class="panel-body">
       <p>Author: <span>{{author}}</span></p>
@@ -24,9 +25,11 @@
   {{/if}}
 </div>
 
+
 <script>
     
   //script for button and action
+  //do not use this in update page
   $( document ).ready(function() {
     var buttons = $('button');
     buttons.on("click", function(){
@@ -46,3 +49,4 @@
   });
   
 </script>
+

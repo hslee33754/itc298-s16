@@ -22,36 +22,47 @@ app.use(express.static(__dirname + '/public'));
 app.set('port', process.env.PORT || 3000); //app.listen(3000);?
 
 /* ======================= GET ======================= */ 
+var title ="Kate's ITC298 Home";
 //get-home
 app.get('/', function(req, res){
-    res.render('home', {book:book.getAllBooks(), message:book.getMessage()});
+    title ="Kate's ITC298 Home";
+    res.render('home', {book:book.getAllBooks(), message:book.getMessage(), title});
 });
 
 //get-add
 app.get('/add', function(req, res){
     //showing add form 
-    res.render('add');
+    title = "Kate's ITC298 Add";
+    res.render('add', {title});
 });
 
 //get-about
 app.get('/about', function(req, res){
     //showing add form 
-    res.render('about');
+    title = "Kate's ITC298 About";
+    res.render('about', {title});
 });
 
 //get-detail
-
 app.get('/detail/:theTitle', function(req, res){
     var myTitle = req.params.theTitle.toLowerCase();
     var myItem = book.getMatchedItem(myTitle);
-    res.render('detail', {myItem, btn_total:"show"});
+    title = "Kate's ITC298 - " + req.params.theTitle;
+    res.render('detail', {myItem, title, btn_total:"show"});
 });
 
 /* ======================= POST ======================= */ 
 //post-search
 app.post('/search', function(req, res){
     var userKeyword = req.body.userInput.toLowerCase();
-    res.render('home', { book:book.getSearchResults(userKeyword), message:book.getMessage(), btn_total:"show"});
+    res.render('home', {book:book.getSearchResults(userKeyword), message:book.getMessage(), btn_total:"show"});
+});
+
+//post-delete/:theTitle
+app.post('/delete/:theTitle', function(req, res){
+    //handleing delete and redirct to home
+    var theTitle = req.params.theTitle.toLowerCase();
+    res.render('home', {book:book.deleteABook(theTitle), message:book.getMessage()});
 });
 
 //post-delete
@@ -59,6 +70,15 @@ app.post('/delete', function(req, res){
     //handleing delete and redirct to home
     var userKeyword = req.body.userInput.toLowerCase();
     res.render('home', {book:book.deleteABook(userKeyword), message:book.getMessage()});
+});
+
+//post-update/:theTitle
+app.post('/update/:theTitle', function(req, res){
+    //takes the user input and check if matched
+    var theTitle = req.params.theTitle.toLowerCase();
+    var item = book.getMatchedItem(theTitle);
+    res.render('update', {item});
+
 });
 
 //post-update
@@ -69,7 +89,7 @@ app.post('/update', function(req, res){
     var message = '';
     if(item){
         //if matched, show update form with the values entered
-        res.render('update', {item:item});
+        res.render('update', {item});
     }else{  
         //if not, don't update
         message = "Can't update the item. '" + userKeyword + "' is not in your List.";
@@ -82,7 +102,8 @@ app.post('/updateProcess', function(req, res){
     var title = req.body.inputTitle;
     var author = req.body.inputAuthor;
     var price = req.body.inputPrice;
-    res.render('home', {book:book.update(title, author, price), message:book.getMessage()});
+    var sold = req.body.selectSold === "true"; //true/false as boolean
+    res.render('home', {book:book.update(title, author, price, sold), message:book.getMessage()});
 });
 
 //post-add

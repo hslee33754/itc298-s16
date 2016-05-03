@@ -1,19 +1,15 @@
 <div class="page-header">
-  <h1>Kate's itc298 project</h1>
+  <h1>Book Details</h1>
 </div>
 
-<div class="page-header">
-  <h2>Book Details</h2>
-</div>
-
-<form class="form-horizontal" method="POST" action="/updateProcess">
+<form class="form-horizontal" method="POST" action="/update">
   
   <!--ID value cannot be updated -->
   {{#myItem}}
   <div class="form-group">
-    <label class="col-sm-2 control-label">Title</label>
+    <label class="col-sm-2 control-label h4">Title</label>
     <div class="col-sm-10">
-      <p class="form-control-static" >{{title}}</p>
+      <h4 class="form-control-static" id="title">{{title}}</h4>
     </div>
   </div>
   
@@ -34,10 +30,14 @@
   <div class="form-group">
     <label for="inputSold" class="col-sm-2 control-label">Sold</label>
     <div class="col-sm-10">
-        <p class="form-control-static" >{{sold}}</p>
+        <p class="form-control-static" >{{#if sold}}Yes{{else}}No{{/if}}</p>
     </div>
   </div>
   
+  <div class="pull-right">
+      <button class="btn btn-warning" id="btn-delete">Update</button>
+      <button class="btn btn-danger" id="btn-update">Delete</button>
+  </div>
   {{/myItem}}
   <!--DateAdded value cannot be updated -->
 
@@ -45,3 +45,15 @@
   <a href="/" id="btn_total">See total books</a>
   {{/if}}
 </form>
+
+{{! javascript script for creating button attr, using the title}}
+<script>
+  $( document ).ready(function() {
+    var buttons = $('button');
+    var title = $( "#title" ).html();
+    buttons.on("click", function(){
+      var $this = $(this);
+      $('form').attr("action", "../" + $this.text().toLowerCase() + "/" + title);
+    });
+  }); 
+</script>
