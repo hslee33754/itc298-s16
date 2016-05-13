@@ -24,3 +24,7 @@ footer > .container{
 .container .text-muted {
   margin: 1rem 0;
 }
+
+.fb_iframe_widget{
+  padding: 12px;
+}
