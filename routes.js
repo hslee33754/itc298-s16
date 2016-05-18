@@ -3,6 +3,25 @@ module.exports = function(app){
 //node module
 var book = require('./lib/book.js'); 
 
+//model 
+var Book = require('./models/book.js');
+
+//body-Parser Configuration
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
+app.use(bodyParser.json()); // support json encoded bodies
+
+//file upload handler
+var formidable = require('formidable');
+
+//data directory
+var fs = require('fs');
+var dataDir = __dirname + '/data';
+var bookPhotoDir = dataDir + '/book-photo';
+fs.existsSync(dataDir) || fs.mkdirSync(dataDir);
+fs.existsSync(bookPhotoDir) || fs.mkdirSync(bookPhotoDir);
+
+
 /* ======================= GET ======================= */ 
 var title ="Kate's ITC298 Home";
 //get-home
@@ -90,15 +109,50 @@ app.post('/updateProcess', function(req, res){
 
 //post-add
 app.post('/add', function(req, res){
-    //handleing form from add and render it to home
-    var id = book.genNextId();
-    var title = req.body.inputTitle;
-    var author = req.body.inputAuthor;
-    var price = req.body.inputPrice;
-    var date = new Date();
-    var sold = false;
-    var theBook = {id, title, author, price, date, sold};
-    res.render('home', {book:book.addABook(theBook, title.toLowerCase()), message:book.getMessage()});
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields, files){
+        if(err) return res.render('500');
+        //console.log('received fields:');
+        //console.log(fields);
+        //console.log('received files:');
+        //console.log(files);
+        
+        //creates new id
+        var id = book.genNextId(); 
+        
+        //handles fields (body parser isn't working with enctype="multipart/form-data")
+        //you should parse the inputs using formidable fields
+        var theTitle = fields.inputTitle;
+        var theAuthor = fields.inputAuthor;
+        var theprice = fields.inputPrice;
+        
+        // handle files
+        var photo = files.photo;
+        var dir = bookPhotoDir + '/' + Date.now();
+        var path = dir + '/' + photo.name;
+        fs.mkdirSync(dir);
+        fs.renameSync(photo.path, dir + '/' + photo.name);
+        var date = new Date();
+        var sold = false;
+        //var theBook = {id, title, author, price, date, sold};
+        //res.render('home', {book:book.addABook(theBook, title.toLowerCase()), message:book.getMessage()});
+    
+        var theBook = new Book({
+           title: theTitle,
+           author: theAuthor,
+           price: theprice,
+           dateAdded : new Date(),
+           sold : false
+        });
+        
+        //console.log(theBook);
+        
+        theBook.save(function(err){
+            if(err) return console.log(err);
+            res.send(theBook);
+        });
+    });
+    
 });
 
 /* ======================= API ======================= */ 
