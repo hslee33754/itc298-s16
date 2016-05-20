@@ -1,7 +1,7 @@
 module.exports = function(app){
 
 //node module
-var book = require('./lib/book.js'); 
+//var book = require('./lib/book.js'); 
 
 //model 
 var Book = require('./models/book.js');
@@ -27,7 +27,11 @@ var title ="Kate's ITC298 Home";
 //get-home
 app.get('/', function(req, res){
     title ="Kate's ITC298 Home";
-    res.render('home', {book:book.getAllBooks(), message:book.getMessage(), title});
+    Book.find({}, function(err, books) {
+        if (err) console.error(err);
+        var message = "We have " + books.length + " total books.";
+        res.render('home', {book:books, message, title});
+    });
 });
 
 //get-add
@@ -45,81 +49,88 @@ app.get('/about', function(req, res){
 });
 
 //get-detail
-app.get('/detail/:theTitle', function(req, res){
-    var myTitle = req.params.theTitle.toLowerCase();
-    var myItem = book.getMatchedItem(myTitle);
-    title = "Kate's ITC298 - " + req.params.theTitle;
-    res.render('detail', {myItem, title, btn_total:"show"});
+app.get('/detail/:id', function(req, res){
+    var theId = req.params.id;
+    Book.findById(theId, function (err, theBook) {
+        if (err) return console.error(err);
+        title = "Kate's ITC298 - " + theBook.title;
+        res.render('detail', {theBook, title, btn_total:"show"});
+    });
 });
 
 /* ======================= POST ======================= */ 
 //post-search
 app.post('/search', function(req, res){
-    var userKeyword = req.body.userInput.toLowerCase();
-    res.render('home', {book:book.getSearchResults(userKeyword), message:book.getMessage(), btn_total:"show"});
+    var userKeyword = req.body.userInput;
+    Book.find({title:new RegExp(userKeyword, "i")}, function(err, books) {
+        if (err) console.error(err);
+        var message = "We have " + books.length + " total books.";
+        var title = "Kate's itc298 search result";
+        res.render('home', {book:books, message, title, btn_total:"show"});
+    });
 });
 
-//post-delete/:theTitle
-app.post('/delete/:theTitle', function(req, res){
-    //handleing delete and redirct to home
-    var theTitle = req.params.theTitle.toLowerCase();
-    res.render('home', {book:book.deleteABook(theTitle), message:book.getMessage()});
+//post-delete/:id
+app.post('/delete/:id', function(req, res){
+    var theId = req.params.id;
+    Book.findOne({_id: theId}, function(err, book) {
+        if (err) console.error(err);
+        var message = book.title + " is removed.";
+        var title = "Kate's itc298";
+        book.remove();
+        
+        Book.find({}, function(err, books) {
+            if (err) console.error(err);
+            res.render('home', {book:books, message, title});
+        });
+    });
 });
 
-//post-delete
-app.post('/delete', function(req, res){
-    //handleing delete and redirct to home
-    var userKeyword = req.body.userInput.toLowerCase();
-    res.render('home', {book:book.deleteABook(userKeyword), message:book.getMessage()});
-});
-
-//post-update/:theTitle
-app.post('/update/:theTitle', function(req, res){
+//post-update/:id
+app.post('/update/:id', function(req, res){
     //takes the user input and check if matched
-    var theTitle = req.params.theTitle.toLowerCase();
-    var item = book.getMatchedItem(theTitle);
-    res.render('update', {item});
-
-});
-
-//post-update
-app.post('/update', function(req, res){
-    //takes the user input and check if matched
-    var userKeyword = req.body.userInput.toLowerCase();
-    var item = book.getMatchedItem(userKeyword);
-    var message = '';
-    if(item){
-        //if matched, show update form with the values entered
-        res.render('update', {item});
-    }else{  
-        //if not, don't update
-        message = "Can't update the item. '" + userKeyword + "' is not in your List.";
-        res.render('home', {book:book.getAllBooks, message});
-    }
+    var theId = req.params.id;
+    Book.findOne({_id:theId}, function(err, abook) {
+        if (err) console.error(err);
+        var title = "Kate's itc298 update";
+        res.render('update', {abook, title, btn_total:"show"});
+    });
 });
 
 app.post('/updateProcess', function(req, res){
     //takes new inputs and process update function to replace the data 
-    var title = req.body.inputTitle;
-    var author = req.body.inputAuthor;
-    var price = req.body.inputPrice;
-    var sold = req.body.selectSold === "true"; //true/false as boolean
-    res.render('home', {book:book.update(title, author, price, sold), message:book.getMessage()});
+    var theId = req.body.inputId;
+    var theTitle = req.body.inputTitle;
+    var theAuthor = req.body.inputAuthor;
+    var thePrice = req.body.inputPrice;
+    var theSold = req.body.selectSold === "true"; //true/false as boolean
+    
+    Book.findById(theId, function (err, book) {
+      if (err) return console.error(err);
+      
+      book.title = theTitle;
+      book.author = theAuthor;
+      book.price = thePrice;
+      book.sold = theSold;
+      book.save(function (err) {
+        if (err) return console.error(err);
+        Book.find({}, function(err, books) {
+            if (err) console.error(err);
+            var title = "Kate's itc298 home";
+            var message = book.title + " is updated.";
+            res.render('home', {book:books, message, title});
+        });
+      });
+    });
+    
 });
 
 //post-add
 app.post('/add', function(req, res){
     var form = new formidable.IncomingForm();
     form.parse(req, function(err, fields, files){
-        if(err) return res.render('500');
-        //console.log('received fields:');
-        //console.log(fields);
-        //console.log('received files:');
-        //console.log(files);
-        
-        //creates new id
-        var id = book.genNextId(); 
-        
+        if(err) return console.log(err);
+
         //handles fields (body parser isn't working with enctype="multipart/form-data")
         //you should parse the inputs using formidable fields
         var theTitle = fields.inputTitle;
@@ -134,9 +145,7 @@ app.post('/add', function(req, res){
         fs.renameSync(photo.path, dir + '/' + photo.name);
         var date = new Date();
         var sold = false;
-        //var theBook = {id, title, author, price, date, sold};
-        //res.render('home', {book:book.addABook(theBook, title.toLowerCase()), message:book.getMessage()});
-    
+
         var theBook = new Book({
            title: theTitle,
            author: theAuthor,
@@ -145,11 +154,15 @@ app.post('/add', function(req, res){
            sold : false
         });
         
-        //console.log(theBook);
-        
         theBook.save(function(err){
             if(err) return console.log(err);
-            res.send(theBook);
+        });
+        
+        var message = "You've added " + theBook.title;
+        
+        Book.find({}, function(err, books) {
+          if(err) return console.log(err);
+          res.render('home', {book:books, message, title});
         });
     });
     

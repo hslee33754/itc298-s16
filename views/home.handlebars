@@ -11,7 +11,7 @@
   {{#each book}}
   <div class="panel panel-default">
     <div class="panel-heading">
-      <h3 class="panel-title"><a id="title" name="title" href="/detail/{{title}}">{{title}}</a> <span class="badge pull-right">{{#if sold}}sold{{/if}}</span></h3>
+      <h3 class="panel-title"><a id="title" name="title" href="/detail/{{id}}">{{title}}</a> <span class="badge pull-right">{{#if sold}}sold{{/if}}</span></h3>
     </div>
     <div class="panel-body">
       <p>Author: <span>{{author}}</span></p>
@@ -24,29 +24,3 @@
   <a href="/" id="btn_total">See total books</a>
   {{/if}}
 </div>
-
-
-<script>
-    
-  //script for button and action
-  //do not use this in update page
-  $( document ).ready(function() {
-    var buttons = $('button');
-    buttons.on("click", function(){
-      var $this = $(this);
-      $('form').attr("action", $this.text().toLowerCase());
-      
-    });
-  });  
-  
-  //script for getting user select item
-  $( document ).ready(function() {
-      var title = $('#title');
-      var myItem;
-      title.on("click", function(){
-        myItem = book.getMatchedItem(title.toLowerCase());
-      });
-  });
-  
-</script>
-

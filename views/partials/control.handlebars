@@ -1,13 +1,11 @@
 <div class="row">
   <p>
-    <form class="form-inline" method="POST" id="main-form">
+    <form class="form-inline" method="POST" id="main-form" action="/search">
       <div class="form-group">
         <label class="sr-only" for="search" >Search</label>
         <input type="text" class="form-control" name="userInput" required="true" placeholder="Enter Book Title">
       </div>
       <button class="btn btn-default" id="btn-search">Search</button>
-      <button class="btn btn-default" id="btn-delete">Delete</button>
-      <button class="btn btn-default" id="btn-update">Update</button>
       <a href="/add" class="btn btn-success pull-right">Add a book</a>
     </form>
   </p>

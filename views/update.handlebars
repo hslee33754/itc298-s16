@@ -9,11 +9,12 @@
 <form class="form-horizontal" method="POST" action="/updateProcess">
   
   <!--ID value cannot be updated -->
-  {{#item}}
+  {{#abook}}
   <div class="form-group">
     <label for="inputTitle" class="col-sm-2 control-label">Title</label>
     <div class="col-sm-10">
       <input type="text" class="form-control" id="inputTitle" name="inputTitle" value="{{title}}">
+      <input type="hidden" id="inputId" name="inputId" value="{{id}}">
     </div>
   </div>
   
@@ -46,7 +47,7 @@
     </div>
   </div>
   
-  {{/item}}
+  {{/abook}}
   <!--DateAdded value cannot be updated -->
 
   <div class="form-group">
