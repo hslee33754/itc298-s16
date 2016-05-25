@@ -107,8 +107,9 @@ app.post('/updateProcess', function(req, res){
         var theId = fields.inputId;
         Book.findById(theId, function (err, theBook) {
             if (err) return console.error(err);
-            if(theBook.photoUrl != "current img url from html DOM"){
-                // handle files
+            
+            // handle files
+            if(files.photo.size != 0){
                 var photo = files.photo;
                 var dir = bookPhotoDir + '/' + Date.now();
                 var path = dir + '/' + photo.name;
@@ -116,6 +117,8 @@ app.post('/updateProcess', function(req, res){
                 fs.renameSync(photo.path, dir + '/' + photo.name);
                 var newPath = path.replace('/home/ubuntu/workspace/public/','../');
                 theBook.photoUrl = newPath;
+            }else{
+                
             }
             theBook.title = fields.inputTitle;
             theBook.author = fields.inputAuthor;
@@ -147,7 +150,6 @@ app.post('/add', function(req, res){
         }else{
             var newPath = null;
         }
-        
         
         var theBook = new Book({
            title: fields.inputTitle,
