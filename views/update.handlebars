@@ -6,7 +6,7 @@
   <h2>Update a book</h2>
 </div>
 
-<form class="form-horizontal" method="POST" action="/updateProcess">
+<form class="form-horizontal" enctype="multipart/form-data" method="POST" action="/updateProcess">
   
   <!--ID value cannot be updated -->
   {{#abook}}
@@ -15,6 +15,19 @@
     <div class="col-sm-10">
       <input type="text" class="form-control" id="inputTitle" name="inputTitle" value="{{title}}">
       <input type="hidden" id="inputId" name="inputId" value="{{id}}">
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Image</label>
+    <div class="col-sm-10">
+      {{#unless photoUrl}}
+        <img src="/book-photo/no-image.png" alt="temp" style="width:150px; height:auto;" id="bookPhoto">
+      {{/unless}}
+      {{#if photoUrl}}
+        <img src="{{photoUrl}}" alt="temp" style="width:150px; height:auto;" id="bookPhoto" name="bookPhoto">
+      {{/if}}
+      <input type="file" accept="image/*" id="inputPhoto" name="photo" onchange="changePicture()" >
     </div>
   </div>
   
@@ -56,3 +69,17 @@
     </div>
   </div>
 </form>
+
+
+<script>
+//script for changing image upload
+$("#inputPhoto").change(function(){
+    if (this.files && this.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+          $('#bookPhoto').attr('src', e.target.result);
+      };
+    reader.readAsDataURL(this.files[0]);
+  }
+});
+</script>

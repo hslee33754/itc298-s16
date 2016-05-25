@@ -11,12 +11,15 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
 app.use(bodyParser.json()); // support json encoded bodies
 
+//set Cross-Origin Resource Sharing
+app.use('/api', require('cors')());
+
 //file upload handler
 var formidable = require('formidable');
 
 //data directory
 var fs = require('fs');
-var dataDir = __dirname + '/data';
+var dataDir = __dirname + '/public';
 var bookPhotoDir = dataDir + '/book-photo';
 fs.existsSync(dataDir) || fs.mkdirSync(dataDir);
 fs.existsSync(bookPhotoDir) || fs.mkdirSync(bookPhotoDir);
@@ -58,20 +61,8 @@ app.get('/detail/:id', function(req, res){
     });
 });
 
-/* ======================= POST ======================= */ 
-//post-search
-app.post('/search', function(req, res){
-    var userKeyword = req.body.userInput;
-    Book.find({title:new RegExp(userKeyword, "i")}, function(err, books) {
-        if (err) console.error(err);
-        var message = "We have " + books.length + " total books.";
-        var title = "Kate's itc298 search result";
-        res.render('home', {book:books, message, title, btn_total:"show"});
-    });
-});
-
-//post-delete/:id
-app.post('/delete/:id', function(req, res){
+//get-delete/:id
+app.get('/delete/:id', function(req, res){
     var theId = req.params.id;
     Book.findOne({_id: theId}, function(err, book) {
         if (err) console.error(err);
@@ -86,8 +77,8 @@ app.post('/delete/:id', function(req, res){
     });
 });
 
-//post-update/:id
-app.post('/update/:id', function(req, res){
+//get-update/:id
+app.get('/update/:id', function(req, res){
     //takes the user input and check if matched
     var theId = req.params.id;
     Book.findOne({_id:theId}, function(err, abook) {
@@ -97,61 +88,74 @@ app.post('/update/:id', function(req, res){
     });
 });
 
-app.post('/updateProcess', function(req, res){
-    //takes new inputs and process update function to replace the data 
-    var theId = req.body.inputId;
-    var theTitle = req.body.inputTitle;
-    var theAuthor = req.body.inputAuthor;
-    var thePrice = req.body.inputPrice;
-    var theSold = req.body.selectSold === "true"; //true/false as boolean
-    
-    Book.findById(theId, function (err, book) {
-      if (err) return console.error(err);
-      
-      book.title = theTitle;
-      book.author = theAuthor;
-      book.price = thePrice;
-      book.sold = theSold;
-      book.save(function (err) {
-        if (err) return console.error(err);
-        Book.find({}, function(err, books) {
-            if (err) console.error(err);
-            var title = "Kate's itc298 home";
-            var message = book.title + " is updated.";
-            res.render('home', {book:books, message, title});
-        });
-      });
+/* ======================= POST ======================= */ 
+//post-search
+app.post('/search', function(req, res){
+    var userKeyword = req.body.userInput;
+    Book.find({title:new RegExp(userKeyword, "i")}, function(err, books) {
+        if (err) console.error(err);
+        var message = "We have " + books.length + " total books.";
+        var title = "Kate's itc298 search result";
+        res.render('home', {book:books, message, title, btn_total:"show"});
     });
-    
 });
+
+app.post('/updateProcess', function(req, res){
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields, files){
+        if(err) return console.log(err);
+        var theId = fields.inputId;
+        Book.findById(theId, function (err, theBook) {
+            if (err) return console.error(err);
+            if(theBook.photoUrl != "current img url from html DOM"){
+                // handle files
+                var photo = files.photo;
+                var dir = bookPhotoDir + '/' + Date.now();
+                var path = dir + '/' + photo.name;
+                fs.mkdirSync(dir);
+                fs.renameSync(photo.path, dir + '/' + photo.name);
+                var newPath = path.replace('/home/ubuntu/workspace/public/','../');
+                theBook.photoUrl = newPath;
+            }
+            theBook.title = fields.inputTitle;
+            theBook.author = fields.inputAuthor;
+            theBook.price = fields.inputPrice;
+            theBook.sold = fields.selectSold === "true";
+            theBook.save();
+            var title = "Kate's itc298 home";
+            var message = theBook.title + " is updated.";
+            res.render('detail', {theBook, message, title, btn_total:"show"});
+        });
+    });
+});
+
 
 //post-add
 app.post('/add', function(req, res){
     var form = new formidable.IncomingForm();
     form.parse(req, function(err, fields, files){
         if(err) return console.log(err);
-
-        //handles fields (body parser isn't working with enctype="multipart/form-data")
-        //you should parse the inputs using formidable fields
-        var theTitle = fields.inputTitle;
-        var theAuthor = fields.inputAuthor;
-        var theprice = fields.inputPrice;
         
         // handle files
-        var photo = files.photo;
-        var dir = bookPhotoDir + '/' + Date.now();
-        var path = dir + '/' + photo.name;
-        fs.mkdirSync(dir);
-        fs.renameSync(photo.path, dir + '/' + photo.name);
-        var date = new Date();
-        var sold = false;
-
+        if(files.photo.size != 0){
+            var photo = files.photo;
+            var dir = bookPhotoDir + '/' + Date.now();
+            var path = dir + '/' + photo.name;
+            fs.mkdirSync(dir);
+            fs.renameSync(photo.path, dir + '/' + photo.name);
+            var newPath = path.replace('/home/ubuntu/workspace/public/','../');
+        }else{
+            var newPath = null;
+        }
+        
+        
         var theBook = new Book({
-           title: theTitle,
-           author: theAuthor,
-           price: theprice,
+           title: fields.inputTitle,
+           author: fields.inputAuthor,
+           price: fields.inputPrice,
            dateAdded : new Date(),
-           sold : false
+           sold : false,
+           photoUrl: newPath
         });
         
         theBook.save(function(err){

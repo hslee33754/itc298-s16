@@ -12,7 +12,8 @@ var bookSchema =new Schema({
     author: String, 
     price: Number,
     dateAdded: Date, 
-    sold: Boolean
+    sold: Boolean,
+    photoUrl: String
 });
 
 //custom method

@@ -3,7 +3,7 @@
 </div>
 
 <form class="form-horizontal" method="POST" action="/update">
-  
+  {{#if message}}<h4>{{message}}</h4>{{/if}}
   <!--ID value cannot be updated -->
   {{#theBook}}
   <div class="form-group">
@@ -11,6 +11,18 @@
     <div class="col-sm-10">
       <h4 class="form-control-static" id="title">{{title}}</h4>
       <input type="hidden" id="id" name="id" value="{{id}}">
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Image</label>
+    <div class="col-sm-10">
+      {{#unless photoUrl}}
+        <img src="/book-photo/no-image.png" alt="temp" style="width:150px; height:auto;">
+      {{/unless}}
+      {{#if photoUrl}}
+        <img src="{{photoUrl}}" alt="temp" style="width:150px; height:auto;">
+      {{/if}}
     </div>
   </div>
   
@@ -36,8 +48,8 @@
   </div>
   
   <div class="pull-right">
-      <button class="btn btn-warning" id="btn-delete">Update</button>
-      <button class="btn btn-danger" id="btn-update">Delete</button>
+      <a href="/delete/{{id}}" class="btn btn-danger"><i class="fa fa-trash-o" aria-hidden="true"></i> delete</a>
+      <a href="/update/{{id}}" class="btn btn-warning" ><i class="fa fa-pencil-square-o" aria-hidden="true"></i> update</a>
   </div>
   {{/theBook}}
   <!--DateAdded value cannot be updated -->
@@ -46,15 +58,3 @@
   <a href="/" id="btn_total">See total books</a>
   {{/if}}
 </form>
-
-{{! javascript script for creating button attr, using the title}}
-<script>
-  $( document ).ready(function() {
-    var buttons = $('button');
-    var theId = $( "#id" ).val();
-    buttons.on("click", function(){
-      var $this = $(this);
-      $('form').attr("action", "../" + $this.text().toLowerCase() + "/" + theId );
-    });
-  }); 
-</script>
