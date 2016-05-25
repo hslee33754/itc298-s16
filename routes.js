@@ -176,23 +176,19 @@ app.post('/add', function(req, res){
 
 /* ======================= API ======================= */ 
 app.get('/api/books', function(req, res){
-    var books= book.getAllBooks();
-    if(books){
-        res.json(books);
-    }else{
-        res.status(500).send('Error occurred: database error.');
-    }
+    Book.find({}, function(err, books) {
+        if (err) console.error(err);
+        res.json(books)
+    });
     
 });
 
-app.get('/api/book/:theTitle', function(req,res){
-    var theTitle = req.params.theTitle.toLowerCase();
-    var theBook = book.getMatchedItem(theTitle);
-    if(theBook){
+app.get('/api/book/:theId', function(req,res){
+    var theId = req.params.id;
+    Book.findById(theId, function (err, theBook) {
+        if (err) return console.error(err);
         res.json(theBook);
-    }else{
-        res.status(404).send("No matched item");
-    }
+    });
 });
 
 /* ======================= HTTP ERROR HANDELER ======================= */ 
