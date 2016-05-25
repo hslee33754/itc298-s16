@@ -61,33 +61,6 @@ app.get('/detail/:id', function(req, res){
     });
 });
 
-//get-delete/:id
-app.get('/delete/:id', function(req, res){
-    var theId = req.params.id;
-    Book.findOne({_id: theId}, function(err, book) {
-        if (err) console.error(err);
-        var message = book.title + " is removed.";
-        var title = "Kate's itc298";
-        book.remove();
-        
-        Book.find({}, function(err, books) {
-            if (err) console.error(err);
-            res.render('home', {book:books, message, title});
-        });
-    });
-});
-
-//get-update/:id
-app.get('/update/:id', function(req, res){
-    //takes the user input and check if matched
-    var theId = req.params.id;
-    Book.findOne({_id:theId}, function(err, abook) {
-        if (err) console.error(err);
-        var title = "Kate's itc298 update";
-        res.render('update', {abook, title, btn_total:"show"});
-    });
-});
-
 /* ======================= POST ======================= */ 
 //post-search
 app.post('/search', function(req, res){
@@ -172,6 +145,32 @@ app.post('/add', function(req, res){
         });
     });
     
+});
+
+//post-delete
+app.post('/delete', function(req, res){
+    var theId = req.body.theId;
+    Book.findOne({_id: theId}, function(err, book) {
+        if (err) console.error(err);
+        var message = book.title + " is removed.";
+        var title = "Kate's itc298";
+        book.remove();
+        
+        Book.find({}, function(err, books) {
+            if (err) console.error(err);
+            res.render('home', {book:books, message, title});
+        });
+    });
+});
+
+//post-update
+app.post('/update', function(req, res){
+    var theId = req.body.theId;
+    Book.findOne({_id:theId}, function(err, abook) {
+        if (err) console.error(err);
+        var title = "Kate's itc298 update";
+        res.render('update', {abook, title, btn_total:"show"});
+    });
 });
 
 /* ======================= API ======================= */ 

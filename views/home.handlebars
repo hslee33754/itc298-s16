@@ -9,27 +9,30 @@
 <div class="row">
   <h4>{{message}}</h4>
   {{#each book}}
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3 class="panel-title"><a id="title" name="title" href="/detail/{{id}}">{{title}}</a> 
-        <div class="pull-right">
-          {{#if sold}} <span class="badge"> sold </span>{{/if}}&nbsp; &nbsp; 
-          <a href="/delete/{{id}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a>&nbsp; &nbsp; 
-          <a href="/update/{{id}}"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
-        </div>
-      </h3>
+  <form method="POST" action="" id="book-form">
+    <input type="hidden" id="theId" name="theId" value="{{id}}">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><a id="title" name="title" href="/detail/{{id}}">{{title}}</a> 
+          <div class="pull-right">
+            {{#if sold}} <span class="badge"> sold </span>{{/if}}&nbsp; &nbsp; 
+            <a href="#" id="link-delete" onclick="$(this).closest('form').attr('action', '/delete').submit();"><i class="fa fa-trash-o" aria-hidden="true"></i></a>&nbsp; &nbsp; 
+            <a href="#" id="link-update" onclick="$(this).closest('form').attr('action', '/update').submit();"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+          </div>
+        </h3>
+      </div>
+      <div class="panel-body">
+        {{#unless photoUrl}}
+          <img src="/book-photo/no-image.png" alt="temp" style="width:150px; height:auto;">
+        {{/unless}}
+        {{#if photoUrl}}
+          <img src="{{photoUrl}}" alt="temp" style="width:150px; height:auto;">
+        {{/if}}
+        <p>Author: <span>{{author}}</span></p>
+        <p>Price: <span>{{price}}</span></p>
+      </div>
     </div>
-    <div class="panel-body">
-      {{#unless photoUrl}}
-        <img src="/book-photo/no-image.png" alt="temp" style="width:150px; height:auto;">
-      {{/unless}}
-      {{#if photoUrl}}
-        <img src="{{photoUrl}}" alt="temp" style="width:150px; height:auto;">
-      {{/if}}
-      <p>Author: <span>{{author}}</span></p>
-      <p>Price: <span>{{price}}</span></p>
-    </div>
-  </div>
+  </form>
   {{/each}}
   
   {{#if btn_total}}
