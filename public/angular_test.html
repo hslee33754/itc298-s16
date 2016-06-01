@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Angular</title>
+    <!-- Angular -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+</head>
+
+<script>
+var bookApp = angular.module('bookApp',[]);
+
+bookApp.controller('BookController', function($scope) {
+    
+    $scope.books = [
+        {id: 0, title:'Fifty Shades of Grey', author:'E L James', price:9.56, dateAdded: '3/3/2016', sold: true},
+        {id: 1, title:'The Hunger Games', author:'Suzanne Collins', price:6.70, dateAdded: '4/16/2016', sold: false},
+        {id: 2, title:'Catching Fire', author:'Suzanne Collins', price:7.92, dateAdded: '4/17/2016', sold: false},
+        {id: 3, title:'Mockingjay', author:'Suzanne Collins', price:7.48, dateAdded: '4/18/2016', sold: false},
+        {id: 100, title:'Fifty Shades Darker', author:'E L James', price:11.48, dateAdded: '4/22/2016', sold: true}
+    ];
+    
+    $scope.searchBooks = function(){
+        function isFound(obj){
+            var title = obj.title.toLowerCase();
+            return title.includes($scope.userInput);
+        }
+        $scope.results = $scope.books.filter(isFound);
+        return $scope.results;
+    };
+    
+    $scope.getDetail = function(x){
+        function isMatched(obj){
+            var id = obj.id;
+            return id === $scope.books[x].id;
+        }
+        $scope.theBook =  $scope.books.find(isMatched);
+        return $scope.theBook;
+    };
+    
+});
+</script>
+
+<body ng-app="bookApp">
+<div class="container" ng-controller="BookController">
+    
+    <div class="page-header">
+      <h1>Kate's Book List</h1>
+    </div> 
+    
+    <div class="row">
+        <form class="form-inline" id="main-form">
+          <div class="form-group">
+            <label class="sr-only" for="search" >Search</label>
+            <input ng-model="userInput" type="text" class="form-control" name="userInput" id="userInput" required="true" placeholder="Enter Book Title">
+          </div>
+          <button class="btn btn-default" id="btn-search">Search</button>
+        </form>
+
+    </div><!-- End Row -->
+    
+    <div class="row">
+        <div class="col-sm-3">
+            
+            <p>{{results.length}} found</p>
+            <ul ng-repeat="book in searchBooks() | orderBy:'title'">
+                <li><a ng-click="getDetail($index)">{{book.title}}</a></li>
+            </ul>
+            
+            
+            <p>{{books.length}} total books</p>
+            <ul ng-repeat="book in books | orderBy:'title'">
+                <li><a ng-click="getDetail($index)">{{book.title}}</a></li>
+            </ul>
+        </div><!-- End col -->
+        
+        <div class="col-sm-9">
+            <h2>Book Detail</h2>
+            <p>Title: {{theBook.title}}</p>
+            <p>Author: {{theBook.author}}</p>
+            <p>Price: {{theBook.price}}</p>
+            <p>Sold: {{theBook.sold}}</p>
+            <p>Date: {{theBook.dateAdded}}</p>
+        </div>
+    </div><!-- End Row -->
+</div>
+      
+</body>
+</html>

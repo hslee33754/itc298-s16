@@ -152,7 +152,8 @@ app.post('/delete', function(req, res){
     var theId = req.body.theId;
     Book.findOne({_id: theId}, function(err, book) {
         if (err) console.error(err);
-        var message = book.title + " is removed.";
+
+        var message = book.title + " is removed. We have " + Book.length + " total books.";
         var title = "Kate's itc298";
         book.remove();
         
