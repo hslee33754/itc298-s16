@@ -61,6 +61,11 @@ app.get('/detail/:id', function(req, res){
     });
 });
 
+//get-detail
+app.get('/home', function(req, res){
+   res.render('home'); 
+});
+
 /* ======================= POST ======================= */ 
 //post-search
 app.post('/search', function(req, res){

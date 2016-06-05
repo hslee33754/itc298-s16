@@ -28,3 +28,22 @@ footer > .container{
 .fb_iframe_widget{
   padding: 12px;
 }
+
+#book_thumbnail{
+  width: 100%;
+}
+
+.book_thumbnail{
+  height: 200px;
+  margin: -15px -15px 15px -15px;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.null{
+  background-image: url(/book-photo/no-image.png) !important;
+}
+
+/* Fix for Angular UI Bootstrap */
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
