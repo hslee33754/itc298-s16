@@ -8,8 +8,8 @@ var Book = require('./models/book.js');
 
 //body-Parser Configuration
 var bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
 app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
 
 //set Cross-Origin Resource Sharing
 app.use('/api', require('cors')());
@@ -193,6 +193,42 @@ app.get('/api/book/:theId', function(req,res){
     Book.findById(theId, function (err, theBook) {
         if (err) return console.error(err);
         res.json(theBook);
+    });
+});
+
+app.post('/api/add', function(req, res){
+
+    if(req.body._id){
+        Book.findById(req.body._id, function (err, newBook) {
+            if (err) return console.error(err);
+            newBook.title = req.body.title;
+            newBook.author = req.body.autho;
+            newBook.price = req.body.price;
+            newBook.sold = req.body.sold === true;
+            newBook.save();
+            res.json(newBook);
+        });
+    }else{
+        var newBook = new Book({
+            title: req.body.title,
+            author: req.body.author,
+            price: req.body.price,
+            dateAdded : new Date(),
+            sold : false,
+        });
+        newBook.save(function(err){
+            if(err) return console.log(err);
+        });
+        res.json(newBook);
+    }
+});
+
+//post-delete
+app.post('/api/delete', function(req, res){
+    Book.findOne({_id: req.body._id}, function(err, book) {
+        if (err) console.error(err);
+        book.remove();
+        res.json(book);
     });
 });
 

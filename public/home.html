@@ -15,205 +15,176 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Angular UI Bootstrap -->
     <script src="/js/ui-bootstrap-1.3.3.min.js"></script>
+    <script src="/js/facebooklogin.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/css/custom.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
 </head>
 
-<script>
-var bookApp = angular.module('bookApp',[]);
-
-bookApp.controller('BookController', function($scope, $http) {
-    
-    //$http.get('/someUrl', config).then(successCallback, errorCallback);
-    $http.get('/api/books')
-        .then(function successCallback(response) {
-            $scope.books = response.data;
-        }, function errorCallback(response) {
-            console.log('Error: ' + response.data);
-    });
-    
-    $scope.all = true;
-    $scope.result = false;
-    $scope.detail = false;
-    
-    $scope.allBooks = function(){
-        $scope.all = true;
-        $scope.result = false;
-        $scope.detail = false;
-    };
-    
-    $scope.backtoResult = function(){
-        if( !$scope.results || $scope.results.length == 0){
-            $scope.all = true;
-            $scope.result = false;
-            $scope.detail = false;
-        }else{
-            $scope.all = false;
-            $scope.result = true;
-            $scope.detail = false;        
-        }
-    };
-    
-    $scope.searchBooks = function(){
-        
-        $scope.all = false;
-        $scope.result = true;
-        $scope.detail = false;
-        
-        function isFound(obj){
-            var title = obj.title.toLowerCase();
-            return title.includes($scope.userInput);
-        }
-            
-        if ($scope.userInput == null){
-            $scope.results = [];
-            $scope.allBooks();
-        }else{
-            $scope.results = $scope.books.filter(isFound);
-            return $scope.results; 
-        }
-    };
-    
-    $scope.getDetail = function(x){
-        
-        $scope.all = false;
-        $scope.result = false;
-        $scope.detail = true;
-                
-        function isMatched(obj){
-            var id = obj.id;
-            return id === $scope.books[x].id;
-        }
-        $scope.theBook =  $scope.books.find(isMatched);
-        return $scope.theBook;
-    };
-    
-});
-
-
-</script>
-
 <body ng-app="bookApp">
+
+<head>
+    <nav class="navbar navbar-inverse navbar-static-top">
+      <div class="container">
+        
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#collapse-menu" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Kate's ITC298 Project</a>
+        </div><!-- End navbar-header -->
+        
+        <div class="collapse navbar-collapse navbar-right" id="collapse-menu">
+          <ul class="nav navbar-nav">
+              <li class="active"><a ng-click="allBooks()">Home</a></li>
+              <fb:login-button scope="public_profile,email" autologoutlink="true" onlogin="checkLoginState();">
+              </fb:login-button>
+          </ul>
+        </div><!-- End navbar-collapse -->
+      </div> <!-- End Container -->
+    </nav>  
+
+</head>
+
 <div class="container" ng-controller="BookController">
     
     <div class="page-header">
       <h1>Kate's Book List</h1>
     </div><!-- End Row -->
-    
-    <div class="row">
-        <div class="col-sm-12 form-group">
-            <label class="control-label sr-only" for="search" >Search</label>
-            <div class="input-group">
-                <input ng-model="userInput" ng-change="searchBooks()" type="text" class="form-control" name="userInput" id="userInput" required="true" placeholder="Enter Book Title">
-                <span class="input-group-btn"><button class="btn btn-default" id="btn-search">Search</button></span>
+   
+
+    <div class="row" id="row_search_results" ng-show="showResult">
+        
+        <!-- Search Form -->
+        
+        <div class="form-group">
+            <div class="col-sm-11">
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></span>
+                <input ng-model="userInput" ng-change="searchBooks()" type="text" class="form-control" name="userInput" id="userInput" required="true" placeholder="Enter search term">              </div>
             </div>
-        </div>
-    </div><!-- End Row -->
-    
-    <div class="row" id="row_all_books" ng-show="all">
-        <div class="col-sm-12">
-            <h4>{{books.length}} total books</h4>
+            <div class="col-sm-1">
+                <button class="btn btn-warning pull-right" id="btn-add" ng-click="displayForm()" >Add</button>
+            </div>
         </div>
         
-        <div ng-repeat="book in books | orderBy:'title'">
-            <div class="col-sm-3">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <a ng-click="getDetail($index)">{{book.title}}</a>
-                        <div class="pull-right">
-                            <span ng-if="book.sold==true" class="badge"> sold </span>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        
-                        <!-- Start ng if -->
-                        <div class="row book_thumbnail" ng-if="book.photoUrl == null" style="background-image: url(/book-photo/no-image.png);">
-                        </div>
-                        
-                        <div class="row book_thumbnail" ng-if="book.photoUrl != null" style="background-image: url({{book.photoUrl}});">
-                        </div>
-                        <!-- End ng if -->
-                        
-                        <div class="row">
-                            <p><span class="col-md-4"><strong>Class: </strong></span> <span class="col-md-8">Class Name{{book.class}}</span></p>
-                            <p><span class="col-md-4"><strong>Price: </strong></span> <span class="col-md-8">{{book.price}}</span></p>
-                            <p><span class="col-md-4"><strong>Author:</strong></span> <span class="col-md-8">{{book.author}}</span></p>
-                            <p><span class="col-md-4"><strong>Detail:</strong></span> <span class="col-md-8">{{book.detail}}</span></span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- List Format (Shows total list or search results) -->
         <div class="col-sm-12">
-            <pagination 
-              ng-model="currentPage"
-              total-items="todos.length"
-              max-size="maxSize"  
-              boundary-links="true">
-            </pagination>
+            <h4>{{results.length}} total books. <span ng-if="message">{{message}}</span></h4>
         </div>
-    </div><!-- End Row -->
-    
-    <div class="row" id="row_search_results" ng-show="result">
-        <div class="col-sm-12">
-            <p>{{results.length}} total books</p>
-        </div>
+        
         <div ng-repeat="book in results | orderBy:'title'">
             <div class="col-sm-3">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <a ng-click="getDetail($index)">{{book.title}}</a>
+                        <a ng-click="getDetail(book._id)">{{book.title}}</a>
                         <div class="pull-right">
-                            <span ng-if="book.sold==true" class="badge"> sold </span>
+                            <span ng-show="book.sold" class="badge"> sold </span>
+                            <a href id="link-delete" ng-click="delete(book._id)"><i class="fa fa-trash-o" aria-hidden="true"></i></a>&nbsp; &nbsp; 
+                            <a href id="link-update" ng-click="displayForm(book._id)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
                         </div>
                     </div>
                     <div class="panel-body">
                         
                         <!-- Start ng if -->
-                        <div class="row book_thumbnail" ng-if="book.photoUrl == null" style="background-image: url(/book-photo/no-image.png);">
-                        </div>
-                        
-                        <div class="row book_thumbnail" ng-if="book.photoUrl != null" style="background-image: url({{book.photoUrl}});">
-                        </div>
+                        <div class="row book_thumbnail" ng-if="book.photoUrl == null" style="background-image: url(/book-photo/no-image.png);"></div>
+                        <div class="row book_thumbnail" ng-if="book.photoUrl" style="background-image: url({{book.photoUrl}});"></div>
                         <!-- End ng if -->
                         
-                        <div class="row">
-                            <p><span class="col-md-4"><strong>Class: </strong></span> <span class="col-md-8">Class Name{{book.class}}</span></p>
-                            <p><span class="col-md-4"><strong>Price: </strong></span> <span class="col-md-8">{{book.price}}</span></p>
-                            <p><span class="col-md-4"><strong>Author:</strong></span> <span class="col-md-8">{{book.author}}</span></p>
-                            <p><span class="col-md-4"><strong>Detail:</strong></span> <span class="col-md-8">{{book.detail}}</span></span></p>
+                        <div>
+                            <p class="row"><span class="col-md-4"><strong>Price: </strong></span> <span class="col-md-8">{{book.price}}</span></p>
+                            <p class="row"><span class="col-md-4"><strong>Author:</strong></span> <span class="col-md-8">{{book.author}}</span></p>
+                            <p class="row"><span class="col-md-4"><strong>Detail:</strong></span> <span class="col-md-8">{{book.detail}}</span></span></p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
-            <a ng-click="allBooks()">See total books</a>
+            <a ng-click="backtoTotal()" class="btn btn-default">See total books</a>
         </div>
     </div><!-- End Row -->
-    
-    
-    <div class="row" ng-show="detail">
+
+    <div class="row" id="row_detail" ng-show="showDetail">
         <div class="col-sm-12">
-            <h2>Book Detail</h2>
-            <p>Title: {{theBook.title}}</p>
+            <h2>{{theBook.title}} {{thebook._id}}</h2>
             <p>Author: {{theBook.author}}</p>
             <p>Price: {{theBook.price}}</p>
             <p>Sold: {{theBook.sold}}</p>
             <p>Date: {{theBook.dateAdded}}</p>
             
-            <a ng-click="backtoResult()">back to result</a>
+            <a ng-click="backtoSearch()" class="btn btn-default">Back to search result</a>
+            <a ng-click="backtoTotal()" class="btn btn-default">See total books</a>
         </div>
-    </div>
+    </div><!-- End Row-->
+    
+    <div class="row" id="row_add" ng-show="showForm" >
+        <form class="form-horizontal" ng-submit="addOrUpdateBook(newBook._id)" >
+
+            <div class="form-group">
+                <label for="inputTitle" class="col-sm-2 control-label">Title</label>
+                <div class="col-sm-10">
+                  <input ng-model="newBook.title" type="text" class="form-control" id="inputTitle" name="inputTitle" placeholder="Enter Book Title" required>
+                </div>
+            </div>
+        
+            <div class="form-group">
+                <label for="inputAuthor" class="col-sm-2 control-label">Author</label>
+                <div class="col-sm-10">
+                  <input ng-model="newBook.author" type="text" class="form-control" id="inputAuthor" name="inputAuthor" placeholder="Enter Author">
+                </div>
+            </div>
+        
+            <div class="form-group">
+                <label for="inputPrice" class="col-sm-2 control-label">Price</label>
+                <div class="col-sm-10">
+                    <div class="input-group">
+                          <div class="input-group-addon">$</div>
+                          <input ng-model="newBook.price" type="number" min="0.01" step="0.01" class="form-control" id="inputPrice" name="inputPrice" placeholder="Enter Price">
+                    </div>
+                </div>
+            </div>
+        
+            <div class="form-group">
+                <label for="fieldPhoto" class="col-sm-2 control-label">Photo</label>
+                <div class="col-sm-10">
+                  <input type="file" accept="image/*" id="fieldPhoto" name="photo">
+                </div>
+            </div>
+            
+            <div class="form-group" ng-show="update">
+                <label for="inputSold" class="col-sm-2 control-label">Sold</label>
+                <div class="col-sm-10">
+                    <div class="input-group">
+                        <select class="form-control" name="selectSold" ng-model="newBook.sold">
+                            <option value=true ng-selected="newBook.sold === true" >YES</option>
+                            <option value=false ng-selected="newBook.sold === false">NO</option>
+                        </select>
+                    </div>
+                </div>
+              </div>
+        
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" class="btn btn-danger" ng-click="backtoTotal()">Cancel</button>
+                    <button type="submit" class="btn btn-warning" ng-show="add">Add</button>
+                    <button type="submit" class="btn btn-warning" ng-show="update">Update</button>
+                </div>
+            </div>
+        </form>
+        
+    </div><!-- End Row -->
 
 
 </div> <!-- End Container -->
 
-<script>
+<script src="/js/bookApp.js"></script>
+<script src="/js/BookController.js"></script>
 
-    
-</script>
+
 </body>
 </html>
 
