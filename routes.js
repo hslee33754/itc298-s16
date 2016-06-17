@@ -29,12 +29,13 @@ fs.existsSync(bookPhotoDir) || fs.mkdirSync(bookPhotoDir);
 var title ="Kate's ITC298 Home";
 //get-home
 app.get('/', function(req, res){
-    title ="Kate's ITC298 Home";
-    Book.find({}, function(err, books) {
-        if (err) console.error(err);
-        var message = "We have " + books.length + " total books.";
-        res.render('home', {book:books, message, title});
-    });
+    res.redirect('/home.html'); //temperarirly redirect to angular spa page
+    // title ="Kate's ITC298 Home";
+    // Book.find({}, function(err, books) {
+    //     if (err) console.error(err);
+    //     var message = "We have " + books.length + " total books.";
+    //     res.render('home', {book:books, message, title});
+    // });
 });
 
 //get-add

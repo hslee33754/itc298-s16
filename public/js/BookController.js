@@ -1,4 +1,4 @@
-bookApp.controller('BookController', function($scope, $http) {
+bookApp.controller('BookController', ['$scope', '$http', function($scope, $http) {
     
     $http.get('/api/books')
         .then(function successCallback(response) {
@@ -127,4 +127,4 @@ bookApp.controller('BookController', function($scope, $http) {
         });
     };
     
-});
+}]);
